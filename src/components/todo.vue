@@ -1,10 +1,6 @@
 <template>
-  <div class="container">
+  <div class="borad container-fluid">
     <h1>{{userName}}'s todoList</h1>
-    <div v-show=" userName == '' " class="confirm">
-      <input class="confirm__input" type="text" v-model="logName" placeholder="請輸入姓名">
-      <button class="confirm__send" @click="setName();start(userName)">send</button>
-    </div>
     <div class="main">
       <input class="main__input" type="text" v-model="newItem" @keyup.enter="addItem(newItem)" placeholder="輸入代辦事項">
       <div class="main__content">
@@ -30,21 +26,20 @@
           </li>
         </ul>
       </div>
-        <ul class="main__tab">
-          <li :class="{click: page=='all'}" @click="change('all')">All</li>
-          <li :class="{click: page=='active'}" @click="change('active')">Active</li>
-          <li :class="{click: page=='completed'}" @click="change('completed')">Completed</li>
-        </ul>
+      <ul class="main__tab">
+        <li :class="{click: page=='all'}" @click="change('all')">All</li>
+        <li :class="{click: page=='active'}" @click="change('active')">Active</li>
+        <li :class="{click: page=='completed'}" @click="change('completed')">Completed</li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script>
-const todosRef = firebase.database().ref('/todos/')
+import { mapGetters, mapActions } from 'vuex'
 export default {
   data () {
     return {
-      userName: '',
       newItem: '',
       page: 'all',
       logName: '',
@@ -55,27 +50,23 @@ export default {
       },
     }
   },
+ mounted () {
+   const vm = this;
+     vm.getRef('todos');
+     vm.userref.on('value', function(snapshot) {
+       vm.todoList = snapshot.val()
+     })
+  },
   methods: {
-    start (logName) {
-      const vm = this
-      if(vm.userName!=''){
-        const todoRef = firebase.database().ref('/todos/' + logName)
-        todoRef.on('value', function(snapshot) {
-          vm.todoList = snapshot.val()
-        })
-      }
-    },
-    setName () {
-      const vm = this;
-      vm.userName = vm.logName;
-      vm.logName = '';
-      console.log(vm.userName)
+    ...mapActions(['userRef']),
+    getRef (postid) {
+      this.userRef(postid);
     },
     addItem () {
       const vm = this
       const username = vm.userName
       const timestamp = Math.floor(Date.now() / 1000)
-      todosRef.child(username).child(timestamp).set({
+      vm.userref.child(timestamp).set({
         timestamp: timestamp,
         item: vm.newItem,
         status: false,
@@ -85,7 +76,7 @@ export default {
     removeItem (todo_id) {
       const vm = this
       const username = vm.userName
-      todosRef.child(username).child(todo_id).remove()
+      vm.userref.child(todo_id).remove()
     },
     change (page) {
       this.page = page
@@ -93,21 +84,27 @@ export default {
     changeStatus (todo_id) {
       const vm = this
       const username = vm.userName
-      const todoRef = firebase.database().ref('/todos/' + username + '/' + todo_id)
-      todoRef.once('value').then(function(snapshot) {
+      const itemStatus = vm.userref.child(todo_id)
+      itemStatus.once('value').then(function(snapshot) {
         var val = snapshot.val().status;
         if(val){
-          todoRef.update({
+          itemStatus.update({
             status: false
           })
         }else{
-          todoRef.update({
+          itemStatus.update({
             status: true
           })
         }
       });
     },    
   },
+  computed: {
+    ...mapGetters({
+      userName: 'getUsername',
+      userref: 'getUserref',
+      })
+  }
 }
 </script>
 
@@ -121,45 +118,25 @@ export default {
 %level_center{
   margin: 0 auto;
 }
-.container{
+.borad{
   @extend %level_center;
   position: relative;
-  width: 800px;
-  height: 700px;
+  width: 100%;
+  height: calc(100% - 64px);
   box-sizing: border-box;
+  background: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("https://images.unsplash.com/photo-1470790376778-a9fbc86d70e2?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=e480962c9c0c092d7b006c04a9e2ab24&auto=format&fit=crop&w=2149&q=80");
+  overflow-y: auto;
   h1{
-    margin: 20px 0 0 30px;
+    padding-top: 30px;
+    text-align: center;
     font-family: sans-serif;
     font-size: 2.5rem;
   }
 }
-.confirm {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  width: 500px;
-  height: 300px;
-  background-color: #2b2b2b;
-  text-align: center;
-  font-size: 2rem;
-  border-radius: 20px;
-  z-index: 999;
-}
-.confirm__send {
-  border: none;
-  border-radius: 5px;
-  background-color: #3dacf7;
-  margin-left: 5px;
-}
-.confirm__send:hover {
-  color: white;
-}
 .main{
-  height: 80%;
+  margin: 0 auto;
+  width: 80%;
+  height: 70%;
   padding-top: 20px;
 }
 .main__input{
@@ -224,10 +201,9 @@ export default {
 }
 .main__tab{
   margin: 0;
-  width: 85%;
+  width: 90%;
   display: flex;
-  list-style: none;
-  
+  list-style: none;  
   li{
     width: 150px;
     height: 40px;
@@ -244,5 +220,17 @@ export default {
       background-color: #9c9c9c;
     }
   }  
+}
+@media (max-width:768px) {
+  .main{
+  }
+  .main__input{
+    font-size: 1.5rem;
+  }
+  .main__tab{
+    li{
+      font-size: 1.2rem;
+    }
+  }
 }
 </style>

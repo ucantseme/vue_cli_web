@@ -2,6 +2,7 @@
   <div class="hello">
     <div class="content">
       <h1>Welcome Back!<br>
+      {{userName}}
       </h1>
       <h4>This is your exclusive website.</h4>
       <h4>Have a nice day!</h4>
@@ -11,13 +12,17 @@
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
+import { mapGetters, mapActions } from 'vuex'
+export default { 
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      
     }
+  },
+    computed: {
+    ...mapGetters({userName:'getUsername'})
   }
+
 }
 </script>
 
@@ -30,7 +35,7 @@ export default {
     background-size: cover;
     text-align: center;
     color: white;
-    padding-top: 20%;
+    padding-top: 15%;
     box-sizing: border-box;
   }
   h1{
@@ -43,7 +48,7 @@ export default {
   @media (max-width:576px) {
     .hello{
       text-align: center;
-      padding-top: 30%;
+      padding-top: 40%;
     }
     h1{
       font-size: 4rem;
@@ -52,4 +57,5 @@ export default {
       font-size: 2rem;
     }
   }
+  
 </style>
