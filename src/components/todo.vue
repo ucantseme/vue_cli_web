@@ -1,5 +1,5 @@
 <template>
-  <div class="borad container-fluid">
+  <div class="board container-fluid">
     <h1>{{userName}}'s todoList</h1>
     <div class="main">
       <input class="main__input" type="text" v-model="newItem" @keyup.enter="addItem(newItem)" placeholder="輸入代辦事項">
@@ -118,7 +118,7 @@ export default {
 %level_center{
   margin: 0 auto;
 }
-.borad{
+.board{
   @extend %level_center;
   position: relative;
   width: 100%;
@@ -222,8 +222,6 @@ export default {
   }  
 }
 @media (max-width:768px) {
-  .main{
-  }
   .main__input{
     font-size: 1.5rem;
   }

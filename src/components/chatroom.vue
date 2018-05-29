@@ -1,8 +1,8 @@
 <template>
-  <div class="borad container">
+  <div class="board container">
     <h1>Let's chat</h1>
     <hr>
-    <div class="borad__content">
+    <div class="board__content">
       <div v-show="text.username != userName" class="media mb-3" v-for="text in messages" >
         <img class="align-self-start ml-3" src="http://lorempixel.com/80/90">
         <div class="media-body other">
@@ -40,7 +40,7 @@ export default {
   },
   mounted () {
     const vm = this;
-      messagesRef.orderByChild("timestamp").on("value",function(snapshot){
+      messagesRef.on("value",function(snapshot){
         vm.messages = snapshot.val()
       });
   },
@@ -62,7 +62,7 @@ export default {
     }),
   },
   updated () {
-    const divH = document.querySelector('.borad__content');
+    const divH = document.querySelector('.board__content');
     if(divH.scrollHeight>divH.scrollTop){
       divH.scrollTop = divH.scrollHeight
     }
@@ -72,7 +72,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="sass" scoped>
-.borad
+.board
   height: calc(100vh - 94px);
   width: 80%;
   border: 1px solid #585858;
@@ -88,7 +88,7 @@ export default {
     width: 10%;
     height: 3px;
     background-color: #68d1ff;
-.borad__content
+.board__content
   height: calc(100% - 170px);
   overflow-y: auto;
   margin-bottom: 10px;
